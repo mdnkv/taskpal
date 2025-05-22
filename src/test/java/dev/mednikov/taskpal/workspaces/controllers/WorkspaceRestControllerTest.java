@@ -3,6 +3,8 @@ package dev.mednikov.taskpal.workspaces.controllers;
 import cn.hutool.core.lang.UUID;
 import cn.hutool.core.lang.generator.SnowflakeGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.mednikov.taskpal.users.models.User;
+import dev.mednikov.taskpal.users.services.UserService;
 import dev.mednikov.taskpal.workspaces.domain.WorkspaceDto;
 import dev.mednikov.taskpal.workspaces.services.WorkspaceService;
 import org.junit.jupiter.api.Test;
@@ -28,6 +30,7 @@ class WorkspaceRestControllerTest {
     @Autowired private MockMvc mockMvc;
     @Autowired private ObjectMapper objectMapper;
     @MockitoBean private WorkspaceService workspaceService;
+    @MockitoBean private UserService userService;
 
     @Test
     void createWorkspaceTest() throws Exception{
@@ -41,7 +44,16 @@ class WorkspaceRestControllerTest {
         result.setPersonal(true);
 
         String keycloakId = UUID.randomUUID().toString();
+
+        User user = new User();
+        user.setId(snowflakeGenerator.next());
+        user.setKeycloakId(keycloakId);
+        user.setEmail("30kkkbtxsr1oy2f4b9fx@gmail.com");
+        user.setFirstName("Manuela");
+        user.setLastName("Schütz");
+
         Mockito.when(workspaceService.createWorkspace(Mockito.any())).thenReturn(result);
+        Mockito.when(userService.getOrCreateUser(Mockito.any())).thenReturn(user);
 
         String body = objectMapper.writeValueAsString(payload);
         mockMvc.perform(
