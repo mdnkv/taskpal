@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/taskpal
+    username: taskpal
+    password: secret
+  flyway:
+    user: taskpal
+    password: secret
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/taskpal
+server:
+  port: 8000
