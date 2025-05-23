@@ -18,7 +18,16 @@ CREATE TABLE IF NOT EXISTS roles_role (
     is_administrator BOOLEAN NOT NULL,
     name VARCHAR(255) NOT NULL,
     UNIQUE (workspace_id, name),
-    CONSTRAINT fk_roles_workspace
+    CONSTRAINT fk_role_workspace
+        FOREIGN KEY (workspace_id)
+            REFERENCES workspaces_workspace(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS projects_project (
+    id BIGINT PRIMARY KEY,
+    workspace_id BIGINT NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    CONSTRAINT fk_project_workspace
         FOREIGN KEY (workspace_id)
             REFERENCES workspaces_workspace(id) ON DELETE CASCADE
 );
