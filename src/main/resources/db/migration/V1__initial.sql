@@ -31,3 +31,17 @@ CREATE TABLE IF NOT EXISTS projects_project (
         FOREIGN KEY (workspace_id)
             REFERENCES workspaces_workspace(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS tasks_task (
+    id BIGINT PRIMARY KEY,
+    workspace_id BIGINT NOT NULL,
+    project_id BIGINT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    CONSTRAINT fk_task_workspace
+        FOREIGN KEY (workspace_id)
+            REFERENCES workspaces_workspace(id) ON DELETE CASCADE,
+    CONSTRAINT fk_task_project
+        FOREIGN KEY (project_id)
+            REFERENCES projects_project(id) ON DELETE CASCADE
+);
