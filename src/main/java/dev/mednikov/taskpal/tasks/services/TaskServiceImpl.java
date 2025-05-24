@@ -1,8 +1,10 @@
 package dev.mednikov.taskpal.tasks.services;
 
 import cn.hutool.core.lang.generator.SnowflakeGenerator;
+import dev.mednikov.taskpal.priorities.repositories.PriorityRepository;
 import dev.mednikov.taskpal.projects.models.Project;
 import dev.mednikov.taskpal.projects.repositories.ProjectRepository;
+import dev.mednikov.taskpal.statuses.repositories.StatusRepository;
 import dev.mednikov.taskpal.tasks.domain.TaskDto;
 import dev.mednikov.taskpal.tasks.domain.TaskDtoMapper;
 import dev.mednikov.taskpal.tasks.exceptions.TaskNotFoundException;
@@ -25,11 +27,20 @@ public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
     private final ProjectRepository projectRepository;
     private final WorkspaceRepository workspaceRepository;
+    private final StatusRepository statusRepository;
+    private final PriorityRepository priorityRepository;
 
-    public TaskServiceImpl(TaskRepository taskRepository, ProjectRepository projectRepository, WorkspaceRepository workspaceRepository) {
+    public TaskServiceImpl(
+            TaskRepository taskRepository,
+            ProjectRepository projectRepository,
+            WorkspaceRepository workspaceRepository,
+            StatusRepository statusRepository,
+            PriorityRepository priorityRepository) {
         this.taskRepository = taskRepository;
         this.projectRepository = projectRepository;
         this.workspaceRepository = workspaceRepository;
+        this.statusRepository = statusRepository;
+        this.priorityRepository = priorityRepository;
     }
 
     @Override
@@ -61,6 +72,18 @@ public class TaskServiceImpl implements TaskService {
         if (!projectId.equals(task.getProject().getId())){
             Project project = this.projectRepository.getReferenceById(projectId);
             task.setProject(project);
+        }
+
+        // verify that the status was changed
+        if (taskDto.getStatusId() != null){
+            Long statusId = Long.parseLong(taskDto.getStatusId());
+            task.setStatus(this.statusRepository.getReferenceById(statusId));
+        }
+
+        // verify that the priority was changed
+        if (taskDto.getPriorityId() != null){
+            Long priorityId = Long.parseLong(taskDto.getPriorityId());
+            task.setPriority(this.priorityRepository.getReferenceById(priorityId));
         }
 
         Task result = this.taskRepository.save(task);

@@ -1,8 +1,12 @@
 package dev.mednikov.taskpal.tasks.services;
 
 import cn.hutool.core.lang.generator.SnowflakeGenerator;
+import dev.mednikov.taskpal.priorities.models.Priority;
+import dev.mednikov.taskpal.priorities.repositories.PriorityRepository;
 import dev.mednikov.taskpal.projects.models.Project;
 import dev.mednikov.taskpal.projects.repositories.ProjectRepository;
+import dev.mednikov.taskpal.statuses.models.Status;
+import dev.mednikov.taskpal.statuses.repositories.StatusRepository;
 import dev.mednikov.taskpal.tasks.domain.TaskDto;
 import dev.mednikov.taskpal.tasks.exceptions.TaskNotFoundException;
 import dev.mednikov.taskpal.tasks.models.Task;
@@ -29,6 +33,8 @@ class TaskServiceImplTest {
     @Mock private WorkspaceRepository workspaceRepository;
     @Mock private ProjectRepository projectRepository;
     @Mock private TaskRepository taskRepository;
+    @Mock private PriorityRepository priorityRepository;
+    @Mock private StatusRepository statusRepository;
 
     @InjectMocks private TaskServiceImpl taskService;
 
@@ -123,6 +129,65 @@ class TaskServiceImplTest {
 
         TaskDto result = taskService.updateTask(payload);
         Assertions.assertThat(result).isNotNull();
+    }
+
+    @Test
+    void updateTaskWithStatusAndPriority_successTest(){
+        Long projectId = snowflakeGenerator.next();
+        Long taskId = snowflakeGenerator.next();
+        Long workspaceId = snowflakeGenerator.next();
+        Long priorityId = snowflakeGenerator.next();
+        Long statusId = snowflakeGenerator.next();
+
+        Workspace workspace = new Workspace();
+        workspace.setId(workspaceId);
+        workspace.setName("Jost Marquardt GmbH & Co. KG");
+        workspace.setPersonal(false);
+
+        Status status = new Status();
+        status.setId(statusId);
+        status.setName("In Progress");
+        status.setWorkspace(workspace);
+
+        Priority priority = new Priority();
+        priority.setId(priorityId);
+        priority.setName("High");
+        priority.setWorkspace(workspace);
+        priority.setUiOrder(1);
+
+        Project project = new Project();
+        project.setId(projectId);
+        project.setName("New project");
+        project.setWorkspace(workspace);
+
+        Task task = new Task();
+        task.setId(taskId);
+        task.setTitle("Duis id nulla sed leo consequat");
+        task.setDescription("Aliquam scelerisque lectus nec ullamcorper condimentum");
+        task.setProject(project);
+        task.setWorkspace(workspace);
+        task.setStatus(status);
+        task.setPriority(priority);
+
+        TaskDto payload = new TaskDto();
+        payload.setId(taskId.toString());
+        payload.setTitle("Duis id nulla sed leo consequat");
+        payload.setDescription("Aliquam scelerisque lectus nec ullamcorper condimentum");
+        payload.setProjectId(projectId.toString());
+        payload.setWorkspaceId(workspaceId.toString());
+        payload.setStatusId(statusId.toString());
+        payload.setPriorityId(priorityId.toString());
+
+        Mockito.when(taskRepository.findById(taskId)).thenReturn(Optional.of(task));
+        Mockito.when(statusRepository.getReferenceById(statusId)).thenReturn(status);
+        Mockito.when(priorityRepository.getReferenceById(priorityId)).thenReturn(priority);
+        Mockito.when(taskRepository.save(task)).thenReturn(task);
+
+        TaskDto result = taskService.updateTask(payload);
+        Assertions.assertThat(result)
+                .isNotNull()
+                .hasFieldOrProperty("status")
+                .hasFieldOrProperty("priority");
     }
 
     @Test
