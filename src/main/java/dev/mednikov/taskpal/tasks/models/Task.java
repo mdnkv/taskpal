@@ -3,8 +3,12 @@ package dev.mednikov.taskpal.tasks.models;
 import dev.mednikov.taskpal.projects.models.Project;
 import dev.mednikov.taskpal.workspaces.models.Workspace;
 import jakarta.persistence.*;
+import org.hibernate.annotations.CurrentTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "tasks_task")
@@ -26,6 +30,14 @@ public class Task {
     @Column(nullable = false)
     private String title;
     private String description;
+
+    @CurrentTimestamp
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     @Override
     public final boolean equals(Object o) {

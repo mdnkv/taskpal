@@ -2,8 +2,12 @@ package dev.mednikov.taskpal.roles.models;
 
 import dev.mednikov.taskpal.workspaces.models.Workspace;
 import jakarta.persistence.*;
+import org.hibernate.annotations.CurrentTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(
@@ -25,6 +29,14 @@ public class Role {
 
     @Column(name = "is_administrator", nullable = false)
     private boolean administrator;
+
+    @CurrentTimestamp
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     @Override
     public final boolean equals(Object o) {

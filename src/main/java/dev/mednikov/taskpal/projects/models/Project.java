@@ -2,8 +2,12 @@ package dev.mednikov.taskpal.projects.models;
 
 import dev.mednikov.taskpal.workspaces.models.Workspace;
 import jakarta.persistence.*;
+import org.hibernate.annotations.CurrentTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "projects_project")
@@ -19,6 +23,14 @@ public class Project {
 
     @Column(nullable = false)
     private String name;
+
+    @CurrentTimestamp
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     @Override
     public final boolean equals(Object o) {
