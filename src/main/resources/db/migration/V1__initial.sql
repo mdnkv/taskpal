@@ -40,10 +40,35 @@ CREATE TABLE IF NOT EXISTS projects_project (
             REFERENCES workspaces_workspace(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS priorities_priority (
+    id BIGINT PRIMARY KEY,
+    workspace_id BIGINT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    ui_order INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_priority_workspace
+        FOREIGN KEY (workspace_id)
+            REFERENCES workspaces_workspace(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS statuses_status (
+    id BIGINT PRIMARY KEY,
+    workspace_id BIGINT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_status_workspace
+        FOREIGN KEY (workspace_id)
+            REFERENCES workspaces_workspace(id) ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS tasks_task (
     id BIGINT PRIMARY KEY,
     workspace_id BIGINT NOT NULL,
     project_id BIGINT NOT NULL,
+    priority_id BIGINT,
+    status_id BIGINT,
     title VARCHAR(255) NOT NULL,
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -53,5 +78,11 @@ CREATE TABLE IF NOT EXISTS tasks_task (
             REFERENCES workspaces_workspace(id) ON DELETE CASCADE,
     CONSTRAINT fk_task_project
         FOREIGN KEY (project_id)
-            REFERENCES projects_project(id) ON DELETE CASCADE
+            REFERENCES projects_project(id) ON DELETE CASCADE,
+    CONSTRAINT fk_task_status
+        FOREIGN KEY (status_id)
+            REFERENCES statuses_status(id) ON DELETE SET NULL,
+    CONSTRAINT fk_task_priority
+        FOREIGN KEY (priority_id)
+            REFERENCES priorities_priority(id) ON DELETE SET NULL
 );
