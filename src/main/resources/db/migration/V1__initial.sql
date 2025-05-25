@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS workspaces_workspace (
 CREATE TABLE IF NOT EXISTS users_user (
     id BIGINT PRIMARY KEY,
     keycloak_id VARCHAR(100) UNIQUE NOT NULL,
-    email VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
     first_name VARCHAR(255),
     last_name VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -27,6 +27,26 @@ CREATE TABLE IF NOT EXISTS roles_role (
     CONSTRAINT fk_role_workspace
         FOREIGN KEY (workspace_id)
             REFERENCES workspaces_workspace(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS workspaces_user (
+    id BIGINT PRIMARY KEY,
+    role_id BIGINT NOT NULL,
+    workspace_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    is_active BOOLEAN NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (workspace_id, user_id),
+    CONSTRAINT fk_workspace_user_workspace
+        FOREIGN KEY (workspace_id)
+            REFERENCES workspaces_workspace(id) ON DELETE CASCADE,
+    CONSTRAINT fk_workspace_user_user
+        FOREIGN KEY (user_id)
+            REFERENCES users_user(id) ON DELETE CASCADE,
+    CONSTRAINT fk_workspace_user_role
+        FOREIGN KEY (role_id)
+            REFERENCES roles_role(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS projects_project (
