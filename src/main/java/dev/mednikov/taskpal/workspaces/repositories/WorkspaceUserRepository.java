@@ -13,7 +13,7 @@ public interface WorkspaceUserRepository extends JpaRepository<WorkspaceUser, Lo
 
     Optional<WorkspaceUser> findByWorkspaceIdAndUserId(Long workspaceId, Long userId);
 
-    @Query("SELECT WorkspaceUser wu FROM WorkspaceUser WHERE wu.user.id = :userId AND wu.active = true")
+    @Query("SELECT wu FROM WorkspaceUser wu WHERE wu.user.id = :userId AND wu.active = true")
     Optional<WorkspaceUser> findActive(Long userId);
 
     List<WorkspaceUser> findAllByUserId(Long userId);
