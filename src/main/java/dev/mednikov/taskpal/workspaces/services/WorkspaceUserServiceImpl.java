@@ -10,6 +10,7 @@ import dev.mednikov.taskpal.users.repositories.UserRepository;
 import dev.mednikov.taskpal.workspaces.domain.CreateWorkspaceUserRequestDto;
 import dev.mednikov.taskpal.workspaces.domain.WorkspaceUserDto;
 import dev.mednikov.taskpal.workspaces.domain.WorkspaceUserDtoMapper;
+import dev.mednikov.taskpal.workspaces.events.WorkspaceCreatedEvent;
 import dev.mednikov.taskpal.workspaces.exceptions.PersonalWorkspaceException;
 import dev.mednikov.taskpal.workspaces.exceptions.WorkspaceNotFoundException;
 import dev.mednikov.taskpal.workspaces.exceptions.WorkspaceUserAlreadyExistsException;
@@ -17,8 +18,10 @@ import dev.mednikov.taskpal.workspaces.models.Workspace;
 import dev.mednikov.taskpal.workspaces.models.WorkspaceUser;
 import dev.mednikov.taskpal.workspaces.repositories.WorkspaceRepository;
 import dev.mednikov.taskpal.workspaces.repositories.WorkspaceUserRepository;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -112,4 +115,52 @@ public class WorkspaceUserServiceImpl implements WorkspaceUserService{
                 .map(workspaceUserDtoMapper)
                 .toList();
     }
+
+    @EventListener
+    public void onWorkspaceCreatedEventListener (WorkspaceCreatedEvent event){
+        Workspace workspace = this.workspaceRepository.findById(event.getWorkspaceId()).orElseThrow();
+        // Create roles
+        List<Role> roles = new ArrayList<>();
+        Role adminRole = new Role();
+        Long adminRoleId = snowflakeGenerator.next();
+        adminRole.setId(adminRoleId);
+        adminRole.setName("Administrator");
+        adminRole.setWorkspace(workspace);
+        adminRole.setAdministrator(true);
+        roles.add(adminRole);
+
+        // If workspace is not personal, then create other roles too
+        if (!workspace.isPersonal()){
+            Role managerRole = new Role();
+            managerRole.setId(snowflakeGenerator.next());
+            managerRole.setName("Project Manager");
+            managerRole.setWorkspace(workspace);
+            managerRole.setAdministrator(false);
+
+            Role developerRole = new Role();
+            developerRole.setId(snowflakeGenerator.next());
+            developerRole.setName("Developer");
+            developerRole.setWorkspace(workspace);
+            developerRole.setAdministrator(false);
+
+            roles.add(managerRole);
+            roles.add(developerRole);
+        }
+
+        this.roleRepository.saveAll(roles);
+
+        // Create a workspace user entity for an owner
+        WorkspaceUser admin = new WorkspaceUser();
+        admin.setId(snowflakeGenerator.next());
+        admin.setUser(event.getOwner());
+
+        // get admin role
+        admin.setWorkspace(workspace);
+        admin.setRole(adminRole);
+
+        boolean active = this.workspaceUserRepository.findAllByUserId(event.getOwner().getId()).isEmpty();
+        admin.setActive(active);
+        this.workspaceUserRepository.save(admin);
+    }
+
 }

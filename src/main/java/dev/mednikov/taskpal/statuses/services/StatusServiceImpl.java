@@ -6,8 +6,10 @@ import dev.mednikov.taskpal.statuses.domain.StatusDtoMapper;
 import dev.mednikov.taskpal.statuses.exceptions.StatusNotFoundException;
 import dev.mednikov.taskpal.statuses.models.Status;
 import dev.mednikov.taskpal.statuses.repositories.StatusRepository;
+import dev.mednikov.taskpal.workspaces.events.WorkspaceCreatedEvent;
 import dev.mednikov.taskpal.workspaces.models.Workspace;
 import dev.mednikov.taskpal.workspaces.repositories.WorkspaceRepository;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -64,4 +66,33 @@ public class StatusServiceImpl implements StatusService {
                 .map(statusDtoMapper)
                 .toList();
     }
+
+    @EventListener
+    public void onWorkspaceCreatedEventListener (WorkspaceCreatedEvent event){
+        Workspace workspace = this.workspaceRepository.getReferenceById(event.getWorkspaceId());
+        List<Status> statuses = new java.util.ArrayList<>();
+        Status created = new Status();
+        created.setId(snowflakeGenerator.next());
+        created.setName("Created");
+        created.setWorkspace(workspace);
+        statuses.add(created);
+        Status inProgress = new Status();
+        inProgress.setId(snowflakeGenerator.next());
+        inProgress.setName("In Progress");
+        inProgress.setWorkspace(workspace);
+        statuses.add(inProgress);
+        Status done = new Status();
+        done.setId(snowflakeGenerator.next());
+        done.setName("Done");
+        done.setWorkspace(workspace);
+        statuses.add(done);
+        Status waiting = new Status();
+        waiting.setId(snowflakeGenerator.next());
+        waiting.setName("Waiting feedback");
+        waiting.setWorkspace(workspace);
+        statuses.add(waiting);
+        this.statusRepository.saveAll(statuses);
+
+    }
+
 }

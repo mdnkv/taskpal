@@ -3,7 +3,9 @@ package dev.mednikov.taskpal.workspaces.controllers;
 import dev.mednikov.taskpal.users.models.User;
 import dev.mednikov.taskpal.users.services.UserService;
 import dev.mednikov.taskpal.workspaces.domain.WorkspaceDto;
+import dev.mednikov.taskpal.workspaces.events.WorkspaceCreatedEvent;
 import dev.mednikov.taskpal.workspaces.services.WorkspaceService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,17 +20,23 @@ public class WorkspaceRestController {
 
     private final WorkspaceService workspaceService;
     private final UserService userService;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public WorkspaceRestController(WorkspaceService workspaceService, UserService userService) {
+    public WorkspaceRestController(WorkspaceService workspaceService, UserService userService, ApplicationEventPublisher eventPublisher) {
         this.workspaceService = workspaceService;
         this.userService = userService;
+        this.eventPublisher = eventPublisher;
     }
 
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody WorkspaceDto createWorkspace(@RequestBody WorkspaceDto body, @AuthenticationPrincipal Jwt jwt) {
         User user = this.userService.getOrCreateUser(jwt);
-        return this.workspaceService.createWorkspace(body);
+        WorkspaceDto result = this.workspaceService.createWorkspace(body);
+        Long workspaceId = Long.parseLong(result.getId());
+        WorkspaceCreatedEvent event = new WorkspaceCreatedEvent(this, workspaceId, user);
+        this.eventPublisher.publishEvent(event);
+        return result;
     }
 
     @PutMapping("/update")

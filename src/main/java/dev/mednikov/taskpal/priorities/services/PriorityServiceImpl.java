@@ -6,10 +6,13 @@ import dev.mednikov.taskpal.priorities.domain.PriorityDtoMapper;
 import dev.mednikov.taskpal.priorities.exceptions.PriorityNotFoundException;
 import dev.mednikov.taskpal.priorities.models.Priority;
 import dev.mednikov.taskpal.priorities.repositories.PriorityRepository;
+import dev.mednikov.taskpal.workspaces.events.WorkspaceCreatedEvent;
 import dev.mednikov.taskpal.workspaces.models.Workspace;
 import dev.mednikov.taskpal.workspaces.repositories.WorkspaceRepository;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -64,4 +67,30 @@ public class PriorityServiceImpl implements PriorityService{
                 .map(priorityDtoMapper)
                 .toList();
     }
+
+    @EventListener
+    public void onWorkspaceCreatedEventListener (WorkspaceCreatedEvent event){
+        Workspace workspace = this.workspaceRepository.getReferenceById(event.getWorkspaceId());
+        List<Priority> priorities = new ArrayList<>();
+        Priority high = new Priority();
+        high.setId(snowflakeGenerator.next());
+        high.setName("High");
+        high.setWorkspace(workspace);
+        high.setUiOrder(1);
+        priorities.add(high);
+        Priority medium = new Priority();
+        medium.setId(snowflakeGenerator.next());
+        medium.setName("Medium");
+        medium.setWorkspace(workspace);
+        medium.setUiOrder(2);
+        priorities.add(medium);
+        Priority low = new Priority();
+        low.setId(snowflakeGenerator.next());
+        low.setName("Low");
+        low.setWorkspace(workspace);
+        low.setUiOrder(3);
+        priorities.add(low);
+        this.priorityRepository.saveAll(priorities);
+    }
+
 }
