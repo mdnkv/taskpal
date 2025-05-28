@@ -12,6 +12,7 @@ import dev.mednikov.taskpal.workspaces.repositories.WorkspaceRepository;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -70,7 +71,7 @@ public class StatusServiceImpl implements StatusService {
     @EventListener
     public void onWorkspaceCreatedEventListener (WorkspaceCreatedEvent event){
         Workspace workspace = this.workspaceRepository.getReferenceById(event.getWorkspaceId());
-        List<Status> statuses = new java.util.ArrayList<>();
+        List<Status> statuses = new ArrayList<>();
         Status created = new Status();
         created.setId(snowflakeGenerator.next());
         created.setName("Created");
