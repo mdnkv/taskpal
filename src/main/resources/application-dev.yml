@@ -10,6 +10,6 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8080/realms/taskpal
+          issuer-uri: http://localhost:8080/realms/task-pal
 server:
   port: 8000

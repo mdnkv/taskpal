@@ -1,0 +1,18 @@
+<h2>Create new workspace</h2>
+<form [formGroup]="createWorkspaceForm" (submit)="submit()">
+  <div class="app-form-field">
+    <mat-form-field>
+      <mat-label>Workspace name</mat-label>
+      <input type="text" formControlName="name" matInput>
+      @if (createWorkspaceForm.get('name')?.touched && createWorkspaceForm.get('name')?.invalid) {
+        <mat-error>This field cannot be empty</mat-error>
+      }
+    </mat-form-field>
+  </div>
+  <div class="app-form-field">
+    <p><mat-slide-toggle [formControlName]="'personal'">Personal workspace</mat-slide-toggle></p>
+  </div>
+  <div>
+    <button type="submit" mat-raised-button [disabled]="createWorkspaceForm.invalid">Create</button>
+  </div>
+</form>

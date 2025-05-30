@@ -1,2 +1,31 @@
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.app-main-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  align-items: center;
+}
+
+.app-main-content {
+  width: 90%;
+}
+
+.app-form-field {
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.app-form-field mat-form-field {
+  width: 100%;
+}
+
+.app-toolbar {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: row;
+}

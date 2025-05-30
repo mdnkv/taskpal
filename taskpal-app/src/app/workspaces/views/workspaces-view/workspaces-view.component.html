@@ -1,0 +1,16 @@
+<h2>My workspaces</h2>
+
+<div class="app-toolbar">
+  <div class="app-toolbar-left">
+    <a [routerLink]="['/workspaces/create']" mat-flat-button>Create workspace</a>
+  </div>
+  <div class="app-toolbar-right"></div>
+</div>
+
+@if(workspaces.length > 0){
+  @for (wu of workspaces; track wu.id!){
+    <app-workspace-card [workspaceUser]="wu" (onSetActive)="onSetActive($event)"></app-workspace-card>
+  }
+} @else {
+  <p>You do not have any workspaces yet</p>
+}

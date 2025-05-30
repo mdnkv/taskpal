@@ -1,0 +1,14 @@
+<mat-card appearance="outlined" class="app-workspace-card">
+  <mat-card-content>
+    <div class="app-toolbar">
+      <div class="app-toolbar-left">
+        <p>{{workspaceUser().workspace.name}}</p>
+      </div>
+      <div class="app-toolbar-right">
+        @if (!workspaceUser().active){
+          <button mat-button (click)="setActiveWorkspace()">Set active</button>
+        }
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>
