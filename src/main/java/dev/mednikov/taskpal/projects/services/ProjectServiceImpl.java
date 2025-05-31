@@ -6,6 +6,7 @@ import dev.mednikov.taskpal.projects.domain.ProjectDtoMapper;
 import dev.mednikov.taskpal.projects.exceptions.ProjectNotFoundException;
 import dev.mednikov.taskpal.projects.models.Project;
 import dev.mednikov.taskpal.projects.repositories.ProjectRepository;
+import dev.mednikov.taskpal.statuses.repositories.StatusRepository;
 import dev.mednikov.taskpal.workspaces.models.Workspace;
 import dev.mednikov.taskpal.workspaces.repositories.WorkspaceRepository;
 import org.springframework.stereotype.Service;
@@ -22,10 +23,12 @@ public class ProjectServiceImpl implements ProjectService{
 
     private final ProjectRepository projectRepository;
     private final WorkspaceRepository workspaceRepository;
+    private final StatusRepository statusRepository;
 
-    public ProjectServiceImpl(ProjectRepository projectRepository, WorkspaceRepository workspaceRepository) {
+    public ProjectServiceImpl(ProjectRepository projectRepository, WorkspaceRepository workspaceRepository, StatusRepository statusRepository) {
         this.projectRepository = projectRepository;
         this.workspaceRepository = workspaceRepository;
+        this.statusRepository = statusRepository;
     }
 
     @Override
@@ -46,6 +49,12 @@ public class ProjectServiceImpl implements ProjectService{
         Objects.requireNonNull(projectDto.getId());
         Project project = this.projectRepository.findById(Long.parseLong(projectDto.getId())).orElseThrow(ProjectNotFoundException::new);
         project.setName(projectDto.getName());
+
+        // Update project's status if the statusId was changed
+        if (projectDto.getStatusId() != null){
+            Long statusId = Long.parseLong(projectDto.getStatusId());
+            project.setStatus(this.statusRepository.getReferenceById(statusId));
+        }
         Project result = this.projectRepository.save(project);
         return projectDtoMapper.apply(result);
     }

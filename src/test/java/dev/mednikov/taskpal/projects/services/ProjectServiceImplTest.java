@@ -5,6 +5,8 @@ import dev.mednikov.taskpal.projects.domain.ProjectDto;
 import dev.mednikov.taskpal.projects.exceptions.ProjectNotFoundException;
 import dev.mednikov.taskpal.projects.models.Project;
 import dev.mednikov.taskpal.projects.repositories.ProjectRepository;
+import dev.mednikov.taskpal.statuses.models.Status;
+import dev.mednikov.taskpal.statuses.repositories.StatusRepository;
 import dev.mednikov.taskpal.workspaces.models.Workspace;
 import dev.mednikov.taskpal.workspaces.repositories.WorkspaceRepository;
 import org.assertj.core.api.Assertions;
@@ -24,6 +26,7 @@ class ProjectServiceImplTest {
 
     @Mock private WorkspaceRepository workspaceRepository;
     @Mock private ProjectRepository projectRepository;
+    @Mock private StatusRepository statusRepository;
     @InjectMocks private ProjectServiceImpl projectService;
 
     private final static SnowflakeGenerator snowflakeGenerator = new SnowflakeGenerator();
@@ -96,6 +99,42 @@ class ProjectServiceImplTest {
 
         ProjectDto result = projectService.updateProject(payload);
         Assertions.assertThat(result).isNotNull();
+    }
+
+    @Test
+    void updateProject_withStatusTest(){
+        Long workspaceId = snowflakeGenerator.next();
+        Long projectId = snowflakeGenerator.next();
+        Long statusId = snowflakeGenerator.next();
+
+        Workspace workspace = new Workspace();
+        workspace.setId(workspaceId);
+        workspace.setName("Metzger AG");
+        workspace.setPersonal(false);
+
+        Status status = new Status();
+        status.setId(statusId);
+        status.setName("In Progress");
+        status.setWorkspace(workspace);
+
+        Project project = new Project();
+        project.setId(projectId);
+        project.setName("New project");
+        project.setWorkspace(workspace);
+        project.setStatus(status);
+
+        ProjectDto payload = new ProjectDto();
+        payload.setName("New project");
+        payload.setId(projectId.toString());
+        payload.setWorkspaceId(workspaceId.toString());
+        payload.setStatusId(statusId.toString());
+
+        Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
+        Mockito.when(statusRepository.getReferenceById(statusId)).thenReturn(status);
+        Mockito.when(projectRepository.save(project)).thenReturn(project);
+
+        ProjectDto result = projectService.updateProject(payload);
+        Assertions.assertThat(result).isNotNull().hasFieldOrProperty("status");
     }
 
     @Test

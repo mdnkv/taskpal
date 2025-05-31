@@ -1,5 +1,6 @@
 package dev.mednikov.taskpal.projects.models;
 
+import dev.mednikov.taskpal.statuses.models.Status;
 import dev.mednikov.taskpal.workspaces.models.Workspace;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CurrentTimestamp;
@@ -8,6 +9,7 @@ import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Entity
 @Table(name = "projects_project")
@@ -20,6 +22,11 @@ public class Project {
     @JoinColumn(name = "workspace_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Workspace workspace;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "status_id")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    private Status status;
 
     @Column(nullable = false)
     private String name;
@@ -69,4 +76,13 @@ public class Project {
     public void setName(String name) {
         this.name = name;
     }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public Optional<Status> getStatus() {
+        return Optional.ofNullable(status);
+    }
+
 }

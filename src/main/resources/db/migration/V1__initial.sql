@@ -83,6 +83,11 @@ CREATE TABLE IF NOT EXISTS statuses_status (
             REFERENCES workspaces_workspace(id) ON DELETE CASCADE
 );
 
+ALTER TABLE projects_project ADD COLUMN status_id BIGINT;
+ALTER TABLE projects_project ADD CONSTRAINT fk_project_status
+    FOREIGN KEY (status_id)
+        REFERENCES statuses_status(id) ON DELETE SET NULL;
+
 CREATE TABLE IF NOT EXISTS tasks_task (
     id BIGINT PRIMARY KEY,
     workspace_id BIGINT NOT NULL,
