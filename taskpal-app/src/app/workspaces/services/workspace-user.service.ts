@@ -1,6 +1,6 @@
 import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {Observable} from 'rxjs';
+import {map, Observable} from 'rxjs';
 
 import {environment} from '../../../environments/environment';
 
@@ -15,11 +15,21 @@ export class WorkspaceUserService {
   serverUrl: string = environment.serverUrl
 
   getActiveWorkspaceUser(): Observable<WorkspaceUser> {
-    return this.http.get<WorkspaceUser>(`${this.serverUrl}/workspaces/users/active`)
+    return this.http.get<WorkspaceUser>(`${this.serverUrl}/workspaces/users/active`).pipe(
+      map(result => {
+        localStorage.setItem('activeWorkspaceId', result.workspace.id!)
+        return result
+      })
+    )
   }
 
   setActiveWorkspace(id: string): Observable<WorkspaceUser>{
-    return this.http.post<WorkspaceUser>(`${this.serverUrl}/workspaces/users/active/${id}`, {})
+    return this.http.post<WorkspaceUser>(`${this.serverUrl}/workspaces/users/active/${id}`, {}).pipe(
+      map(result => {
+        localStorage.setItem('activeWorkspaceId', result.workspace.id!)
+        return result
+      })
+    )
   }
 
   getWorkspaces(): Observable<WorkspaceUser[]>{
